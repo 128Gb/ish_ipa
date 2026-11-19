@@ -13,21 +13,21 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Install build dependencies (meson, ninja)
+      - name: Install build dependencies (meson, ninja, llvm)
         run: |
-          brew install meson ninja
-
-      - name: Check Xcode version
-        run: xcodebuild -version
+          brew install meson ninja llvm
 
       - name: Build iSH.app (Release, Unsigned)
         run: |
+          LLVM_BIN="$(brew --prefix llvm)/bin"
+          export PATH="$LLVM_BIN:$PATH"
           xcodebuild clean build \
             -project iSH.xcodeproj \
             -scheme iSH \
             -configuration Release \
             -sdk iphoneos \
             -derivedDataPath build \
+            PATH="$LLVM_BIN:$PATH" \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \

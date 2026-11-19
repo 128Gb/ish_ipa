@@ -17,13 +17,11 @@ jobs:
         run: |
           brew install meson ninja llvm cmake
 
-      - name: Patch xcode-meson.sh to use Homebrew LLVM for VDSO
+      - name: Point VDSO compiler check to Homebrew LLVM
         run: |
-          LLVM_BIN="$(brew --prefix llvm)/bin"
-          sed -i '' "2i\\
-          export PATH=\"$LLVM_BIN:\$PATH\"
-          " app/xcode-meson.sh
-          head -n 5 app/xcode-meson.sh
+          LLVM_CLANG="$(brew --prefix llvm)/bin/clang"
+          sed -i '' "s|'clang'|'$LLVM_CLANG', 'clang'|g" vdso/meson.build
+          grep -n "clang" vdso/meson.build
 
       - name: Configure libarchive (generate config.h)
         run: |
@@ -75,5 +73,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: iSH-unsigned-ipa
-          path: iSH-unsigned-ipa.ipa
-
+          path: iSH-unsigned.ipa

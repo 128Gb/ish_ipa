@@ -17,6 +17,14 @@ jobs:
         run: |
           brew install meson ninja llvm cmake
 
+      - name: Patch xcode-meson.sh to use Homebrew LLVM for VDSO
+        run: |
+          LLVM_BIN="$(brew --prefix llvm)/bin"
+          sed -i '' "2i\\
+          export PATH=\"$LLVM_BIN:\$PATH\"
+          " app/xcode-meson.sh
+          head -n 5 app/xcode-meson.sh
+
       - name: Configure libarchive (generate config.h)
         run: |
           cd deps/libarchive
@@ -42,15 +50,12 @@ jobs:
 
       - name: Build iSH.app (Release, Unsigned)
         run: |
-          LLVM_BIN="$(brew --prefix llvm)/bin"
-          export PATH="$LLVM_BIN:$PATH"
           xcodebuild clean build \
             -project iSH.xcodeproj \
             -scheme iSH \
             -configuration Release \
             -sdk iphoneos \
             -derivedDataPath build \
-            PATH="$LLVM_BIN:$PATH" \
             IPHONEOS_DEPLOYMENT_TARGET=18.0 \
             GCC_WARN_ABOUT_MISSING_PROTOTYPES=NO \
             CLANG_WARN_STRICT_PROTOTYPES=NO \
@@ -71,3 +76,4 @@ jobs:
         with:
           name: iSH-unsigned-ipa
           path: iSH-unsigned-ipa.ipa
+

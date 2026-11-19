@@ -1,0 +1,46 @@
+name: Build Unsigned iSH IPA
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-15
+
+    steps:
+      - name: Checkout repository with submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install build dependencies (meson, ninja)
+        run: |
+          brew install meson ninja
+
+      - name: Check Xcode version
+        run: xcodebuild -version
+
+      - name: Build iSH.app (Release, Unsigned)
+        run: |
+          xcodebuild clean build \
+            -project iSH.xcodeproj \
+            -scheme iSH \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            ONLY_ACTIVE_ARCH=NO
+
+      - name: Package into IPA
+        run: |
+          mkdir -p Payload
+          cp -r build/Build/Products/Release-iphoneos/iSH.app Payload/
+          zip -r iSH-unsigned.ipa Payload
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: iSH-unsigned-ipa
+          path: iSH-unsigned.ipa

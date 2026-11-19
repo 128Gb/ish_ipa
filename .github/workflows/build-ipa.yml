@@ -28,6 +28,10 @@ jobs:
             -sdk iphoneos \
             -derivedDataPath build \
             PATH="$LLVM_BIN:$PATH" \
+            IPHONEOS_DEPLOYMENT_TARGET=18.0 \
+            GCC_WARN_ABOUT_MISSING_PROTOTYPES=NO \
+            CLANG_WARN_STRICT_PROTOTYPES=NO \
+            OTHER_CFLAGS='$(inherited) -Wno-error=implicit-function-declaration -Wno-implicit-function-declaration -Wno-error=incompatible-function-pointer-types -Wno-error=int-conversion' \
             CODE_SIGN_IDENTITY="" \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGNING_ALLOWED=NO \

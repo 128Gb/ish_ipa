@@ -76,4 +76,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: iSH-unsigned-ipa
-          path: iSH-unsigned-ipa.ipa
+          path: iSH-unsigned.ipa

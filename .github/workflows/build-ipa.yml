@@ -5,7 +5,7 @@ on:
 
 jobs:
   build:
-    runs-on: macos-15-intel
+    runs-on: macos-15
 
     steps:
       - name: Checkout repository with submodules
@@ -13,15 +13,18 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Install build dependencies (meson, ninja, llvm, cmake)
+      - name: Install build dependencies (meson, ninja, llvm, lld, cmake)
         run: |
-          brew install meson ninja llvm cmake
+          brew install meson ninja llvm lld cmake
 
-      - name: Point VDSO compiler check to Homebrew LLVM
+      - name: Point VDSO compiler check to Homebrew LLVM and LLD
         run: |
           LLVM_CLANG="$(brew --prefix llvm)/bin/clang"
+          LLD_BIN="$(brew --prefix lld)/bin"
           sed -i '' "s|'clang'|'$LLVM_CLANG', 'clang'|g" vdso/meson.build
-          grep -n "clang" vdso/meson.build
+          sed -i '' "2i\\
+          export PATH=\"\$PATH:$LLD_BIN\"
+          " app/xcode-meson.sh
 
       - name: Configure libarchive (generate config.h)
         run: |
@@ -73,4 +76,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: iSH-unsigned-ipa
-          path: iSH-unsigned.ipa
+          path: iSH-unsigned-ipa.ipa
